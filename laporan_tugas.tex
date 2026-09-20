@@ -23,6 +23,7 @@
 \usepackage{fancyhdr}
 \usepackage{titlesec}
 \usepackage{enumitem}
+\usepackage{float}
 
 % TikZ untuk Flowchart
 \usepackage{tikz}
@@ -431,7 +432,6 @@ Uang Kembalian                : Rp 6000\\
 ======================================================
 \end{tcolorbox}
 
-\newpage
 \subsection{Source Code Python Program Kasir (\texttt{tugas1\_kasir.py})}
 Berikut adalah implementasi program kasir pembayaran rumah makan dalam bahasa pemrograman Python:
 
@@ -725,13 +725,12 @@ Penerapan OOP pada Tugas 2 diorganisasikan ke dalam 2 \textit{class}:
     \end{itemize}
 \end{enumerate}
 
-\newpage
 \subsection{Flowchart Sistem Record Data Mahasiswa}
 Berikut adalah diagram alir (\textit{flowchart}) lengkap sistem record data mahasiswa yang menggambarkan siklus menu utama dan eksekusi ketiga method utamanya:
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
-\resizebox{0.92\textwidth}{!}{
+\resizebox{!}{0.56\textheight}{
 \begin{tikzpicture}[
     node distance=1.3cm,
     auto,
@@ -821,7 +820,6 @@ Berikut adalah diagram alir (\textit{flowchart}) lengkap sistem record data maha
 \label{fig:flowchart_mhs}
 \end{figure}
 
-\newpage
 \subsection{Penjelasan Tahapan Flowchart}
 Alur logika pada Gambar~\ref{fig:flowchart_mhs} diuraikan sebagai berikut:
 \begin{enumerate}
@@ -847,7 +845,6 @@ Alur logika pada Gambar~\ref{fig:flowchart_mhs} diuraikan sebagai berikut:
     \item \textbf{Opsi 5 (Keluar)}: Mengakhiri eksekusi program dengan mencetak pesan penutup.
 \end{enumerate}
 
-\newpage
 \subsection{Source Code C++ Record Mahasiswa (\texttt{tugas2\_mahasiswa.cpp})}
 Berikut adalah implementasi kode program lengkap C++ untuk Tugas 2:
 
@@ -1125,7 +1122,6 @@ int main() {
 }
 \end{lstlisting}
 
-\newpage
 \subsection{Hasil Uji Coba Eksekusi Program Record Mahasiswa}
 Berikut adalah demonstrasi pengujian fungsional program:
 
@@ -1182,7 +1178,6 @@ Grade             : A\\
 ======================================================
 \end{tcolorbox}
 
-\newpage
 \subsection{Source Code Python Record Mahasiswa (\texttt{tugas2\_mahasiswa.py})}
 Berikut adalah implementasi sistem record data mahasiswa menggunakan bahasa pemrograman Python:
 
@@ -1439,7 +1434,6 @@ Grade             : A\\
 ======================================================
 \end{tcolorbox}
 
-\newpage
 % --- KESIMPULAN ---
 \section{Kesimpulan}
 Dari implementasi kedua program dalam dua versi bahasa (C++ dan Python) serta penyusunan laporan ini, dapat disimpulkan bahwa:
