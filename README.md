@@ -30,8 +30,6 @@ Program manajemen data akademik mahasiswa berbasis OOP dengan method untuk:
 
 ---
 
-## Cara Menjalankan Program
-
 ### 1. Versi C++
 ```bash
 # Kompilasi & Jalankan Tugas 1 (Kasir)
