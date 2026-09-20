@@ -1,0 +1,13 @@
+# Binaries
+*.exe
+*.o
+*.obj
+
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk

@@ -1,0 +1,961 @@
+\documentclass[12pt,a4paper]{article}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[indonesian]{babel}
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    left=3cm,
+    right=2.5cm,
+    top=3cm,
+    bottom=2.5cm
+}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+
+% TikZ untuk Flowchart
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, fit}
+
+% Konfigurasi Hyperlink
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!80!black,
+    citecolor=blue!80!black,
+    urlcolor=blue!80!black
+}
+
+% Konfigurasi Header dan Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{}
+\fancyhead[R]{\small Hellyos Ageng Haqiqie (163251001)}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Konfigurasi Syntax Highlighting C++
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.98}
+\definecolor{codeblue}{rgb}{0.1,0.2,0.8}
+
+\lstdefinestyle{cppstyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=7pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{black!20}
+}
+\lstset{style=cppstyle}
+
+% Definisi Gaya Node TikZ untuk Flowchart
+\tikzset{
+    startstop/.style = {rectangle, rounded corners=12pt, minimum width=3cm, minimum height=0.9cm, text centered, draw=black, fill=blue!15, font=\bfseries\small},
+    process/.style   = {rectangle, minimum width=3.2cm, minimum height=0.9cm, text centered, draw=black, fill=orange!15, text width=3.5cm, font=\footnotesize},
+    decision/.style  = {diamond, aspect=2, minimum width=3cm, minimum height=0.8cm, text centered, draw=black, fill=yellow!25, text width=2.6cm, font=\footnotesize},
+    io/.style        = {trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=0.9cm, text centered, draw=black, fill=green!15, text width=3.2cm, font=\footnotesize},
+    arrow/.style     = {thick, ->, >=stealth}
+}
+
+\begin{document}
+
+% --- IDENTITAS MAHASISWA & JUDUL TUGAS ---
+\begin{center}
+    {\Large \textbf{PEMROGRAMAN BERORIENTASI OBJEK (PBO)}}\\[0.2cm]
+    {\large \textbf{Topik: Implementasi Class dan Method pada C++}}\\[0.4cm]
+    \begin{tabular}{ll}
+        \textbf{Nama}    & : Hellyos Ageng Haqiqie \\
+        \textbf{NIM}     & : 163251001 \\
+        \textbf{Jurusan} & : Robotics \& AI Engineering \\
+    \end{tabular}
+\end{center}
+\vspace{0.1cm}
+\hrule
+\vspace{0.6cm}
+
+% --- PEMBAHASAN TUGAS 1: APLIKASI KASIR RUMAH MAKAN ---
+\section{Tugas 1: Simulasi Program Pembayaran Rumah Makan}
+
+\subsection{Deskripsi Kasus dan Kebutuhan Sistem}
+Berdasarkan instruksi soal nomor 1:
+\begin{quote}
+\textit{``Buatlah simulasi program menggunakan class dan method untuk membuat aplikasi pembayaran pada rumah makan, dengan tampilan awal adalah sebuah menu makanan beserta harga, input data pada kasir berupa makanan dan jumlah, output berupa tampilan makanan yang telah dipesan dan total harus dibayar, dilanjutkan dengan input data/uang pembayaran oleh pelanggan, kemudian output jumlah uang kembalian kepada pelanggan.''}
+\end{quote}
+
+Kebutuhan fungsional sistem kasir ini meliputi:
+\begin{enumerate}
+    \item Menampilkan katalog menu makanan dan minuman beserta harga satuan saat aplikasi dijalankan.
+    \item Menerima input interaktif dari kasir mengenai menu yang dipilih dan kuantitas pemesanan (dengan fitur penambahan menu berulang).
+    \item Menampilkan ringkasan daftar makanan yang telah dipesan beserta subtotal dan total keseluruhan yang harus dibayar.
+    \item Menerima input nominal uang yang diserahkan oleh pelanggan disertai validasi kecukupan pembayaran.
+    \item Menghitung dan mencetak jumlah uang kembalian serta mencetak struk transaksi resmi.
+\end{enumerate}
+
+\subsection{Perancangan Class dan Method}
+Untuk mencapai rancangan berbasis objek yang bersih dan \textit{reusable}, dibentuk 3 (tiga) buah \textit{class}:
+\begin{enumerate}
+    \item \textbf{Class \texttt{Menu}}:
+    \begin{itemize}
+        \item \textit{Atribut Private}: \texttt{int id}, \texttt{string nama}, \texttt{double harga}.
+        \item \textit{Method}: \texttt{getId()}, \texttt{getNama()}, \texttt{getHarga()}.
+    \end{itemize}
+    \item \textbf{Class \texttt{ItemPesanan}}:
+    \begin{itemize}
+        \item \textit{Atribut Private}: \texttt{Menu menu}, \texttt{int jumlah}.
+        \item \textit{Method}: \texttt{getMenu()}, \texttt{getJumlah()}, \texttt{getSubtotal()}.
+    \end{itemize}
+    \item \textbf{Class \texttt{KasirRumahMakan}}:
+    \begin{itemize}
+        \item \textit{Atribut Private}: \texttt{vector<Menu> daftarMenu}, \texttt{vector<ItemPesanan> pesanan}.
+        \item \textit{Method}:
+        \begin{itemize}
+            \item \texttt{tampilkanMenu()}: Menampilkan daftar katalog menu restoran.
+            \item \texttt{tambahPesanan(int idMenu, int jumlah)}: Memvalidasi menu dan memasukkan pesanan.
+            \item \texttt{hitungTotal()}: Menghitung akumulasi seluruh subtotal pesanan.
+            \item \texttt{tampilkanPesanan()}: Menampilkan ringkasan tabel pesanan.
+            \item \texttt{prosesPembayaran(double uangBayar)}: Menghitung selisih pembayaran (kembalian) dan mencetak struk.
+        \end{itemize}
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Source Code C++ Program Kasir (\texttt{tugas1\_kasir.cpp})}
+Berikut adalah implementasi kode program lengkap C++:
+
+\begin{lstlisting}[language=C++, caption={Source Code Kasir Rumah Makan (tugas1\_kasir.cpp)}]
+#include <iostream>
+#include <vector>
+#include <string>
+#include <iomanip>
+#include <limits>
+
+using namespace std;
+
+// Class untuk merepresentasikan entitas Menu Makanan
+class Menu {
+private:
+    int id;
+    string nama;
+    double harga;
+
+public:
+    Menu(int idMenu, string namaMenu, double hargaMenu) {
+        id = idMenu;
+        nama = namaMenu;
+        harga = hargaMenu;
+    }
+
+    int getId() const { return id; }
+    string getNama() const { return nama; }
+    double getHarga() const { return harga; }
+};
+
+// Class untuk merepresentasikan Item yang Dipesan
+class ItemPesanan {
+private:
+    Menu menu;
+    int jumlah;
+
+public:
+    ItemPesanan(Menu m, int jml) : menu(m), jumlah(jml) {}
+
+    Menu getMenu() const { return menu; }
+    int getJumlah() const { return jumlah; }
+    double getSubtotal() const { return menu.getHarga() * jumlah; }
+};
+
+// Class utama Kasir Rumah Makan (Mengelola Transaksi)
+class KasirRumahMakan {
+private:
+    vector<Menu> daftarMenu;
+    vector<ItemPesanan> pesanan;
+
+public:
+    KasirRumahMakan() {
+        daftarMenu.push_back(Menu(1, "Nasi Goreng Spesial", 22000));
+        daftarMenu.push_back(Menu(2, "Ayam Bakar Madu", 28000));
+        daftarMenu.push_back(Menu(3, "Soto Ayam Lamongan", 20000));
+        daftarMenu.push_back(Menu(4, "Bebek Goreng Crispy", 35000));
+        daftarMenu.push_back(Menu(5, "Mie Goreng Seafood", 25000));
+        daftarMenu.push_back(Menu(6, "Es Teh Manis", 5000));
+        daftarMenu.push_back(Menu(7, "Es Jeruk Peras", 7000));
+    }
+
+    void tampilkanMenu() const {
+        cout << "\n======================================================\n";
+        cout << "               DAFTAR MENU RUMAH MAKAN               \n";
+        cout << "======================================================\n";
+        cout << left << setw(6)  << "No" 
+             << setw(26) << "Nama Makanan/Minuman" 
+             << right << setw(18) << "Harga Satuan" << "\n";
+        cout << "------------------------------------------------------\n";
+        for (const auto& item : daftarMenu) {
+            cout << left << setw(6)  << item.getId() 
+                 << setw(26) << item.getNama() 
+                 << right << setw(15) << "Rp " << fixed << setprecision(0) 
+                 << item.getHarga() << "\n";
+        }
+        cout << "======================================================\n";
+    }
+
+    bool cariMenuById(int id, Menu& hasil) const {
+        for (const auto& m : daftarMenu) {
+            if (m.getId() == id) {
+                hasil = m;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool tambahPesanan(int idMenu, int jumlah) {
+        if (jumlah <= 0) {
+            cout << ">> Error: Jumlah pesanan harus lebih dari 0!\n";
+            return false;
+        }
+        Menu menuDipilih(0, "", 0);
+        if (cariMenuById(idMenu, menuDipilih)) {
+            pesanan.push_back(ItemPesanan(menuDipilih, jumlah));
+            cout << ">> Berhasil menambahkan " << jumlah << "x " 
+                 << menuDipilih.getNama() << " ke pesanan.\n";
+            return true;
+        } else {
+            cout << ">> Error: Nomor menu tidak valid!\n";
+            return false;
+        }
+    }
+
+    double hitungTotal() const {
+        double total = 0;
+        for (const auto& item : pesanan) {
+            total += item.getSubtotal();
+        }
+        return total;
+    }
+
+    void tampilkanPesanan() const {
+        if (pesanan.empty()) {
+            cout << ">> Belum ada makanan yang dipesan.\n";
+            return;
+        }
+        cout << "\n======================================================\n";
+        cout << "                   RINGKASAN PESANAN                  \n";
+        cout << "======================================================\n";
+        cout << left << setw(24) << "Item"
+             << setw(8)  << "Qty"
+             << right << setw(12) << "Harga"
+             << right << setw(14) << "Subtotal" << "\n";
+        cout << "------------------------------------------------------\n";
+        for (const auto& p : pesanan) {
+            cout << left << setw(24) << p.getMenu().getNama()
+                 << setw(8)  << p.getJumlah()
+                 << right << setw(9) << "Rp " << fixed << setprecision(0) << p.getMenu().getHarga()
+                 << right << setw(11) << "Rp " << fixed << setprecision(0) << p.getSubtotal() << "\n";
+        }
+        cout << "------------------------------------------------------\n";
+        cout << left << setw(32) << "TOTAL HARUS DIBAYAR:" 
+             << right << setw(18) << "Rp " << fixed << setprecision(0) << hitungTotal() << "\n";
+        cout << "======================================================\n";
+    }
+
+    void prosesPembayaran(double uangBayar) {
+        double total = hitungTotal();
+        double kembalian = uangBayar - total;
+
+        cout << "\n======================================================\n";
+        cout << "                   STRUK PEMBAYARAN                   \n";
+        cout << "======================================================\n";
+        cout << left << setw(30) << "Total Tagihan" 
+             << ": Rp " << fixed << setprecision(0) << total << "\n";
+        cout << left << setw(30) << "Uang Pembayaran Pelanggan" 
+             << ": Rp " << fixed << setprecision(0) << uangBayar << "\n";
+        cout << left << setw(30) << "Uang Kembalian" 
+             << ": Rp " << fixed << setprecision(0) << kembalian << "\n";
+        cout << "======================================================\n";
+        cout << "          Terima Kasih Atas Kunjungan Anda!          \n";
+        cout << "======================================================\n\n";
+    }
+
+    bool adaPesanan() const { return !pesanan.empty(); }
+};
+
+int main() {
+    KasirRumahMakan kasir;
+    char lanjutPesan = 'y';
+
+    cout << "======================================================\n";
+    cout << "     SIMULASI APLIKASI KASIR PEMBAYARAN RUMAH MAKAN   \n";
+    cout << "======================================================\n";
+
+    // 1. Tampilan awal katalog menu
+    kasir.tampilkanMenu();
+
+    // 2. Input makanan dan jumlah kuantitas
+    do {
+        int pilihanMenu, jumlah;
+        cout << "\nMasukkan nomor menu yang dipesan : ";
+        while (!(cin >> pilihanMenu)) {
+            cout << "Input tidak valid! Masukkan angka menu: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+
+        cout << "Masukkan jumlah (porsi/item)    : ";
+        while (!(cin >> jumlah) || jumlah <= 0) {
+            cout << "Jumlah harus berupa angka bulat positif! Masukkan lagi: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+
+        kasir.tambahPesanan(pilihanMenu, jumlah);
+        cout << "Apakah ingin memesan menu lain? (y/n): ";
+        cin >> lanjutPesan;
+    } while (lanjutPesan == 'y' || lanjutPesan == 'Y');
+
+    if (!kasir.adaPesanan()) {
+        cout << "\nTidak ada pesanan. Program selesai.\n";
+        return 0;
+    }
+
+    // 3. Output ringkasan pesanan & total bayar
+    kasir.tampilkanPesanan();
+
+    // 4. Input uang pembayaran pelanggan
+    double totalBayar = kasir.hitungTotal();
+    double uangBayar = 0;
+    cout << "\n--- PROSES PEMBAYARAN ---\n";
+    while (true) {
+        cout << "Masukkan uang pembayaran dari pelanggan: Rp ";
+        if (cin >> uangBayar) {
+            if (uangBayar >= totalBayar) {
+                break;
+            } else {
+                cout << ">> Uang pembayaran kurang! Dibutuhkan minimal Rp " 
+                     << fixed << setprecision(0) << totalBayar 
+                     << " (Kekurangan: Rp " << (totalBayar - uangBayar) << ")\n";
+            }
+        } else {
+            cout << "Input salah! Harap masukkan nominal uang yang valid.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    }
+
+    // 5. Output kembalian & struk
+    kasir.prosesPembayaran(uangBayar);
+
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{Hasil Uji Coba Eksekusi Program Kasir}
+Contoh pengujian program kasir rumah makan saat dijalankan di terminal:
+\begin{tcolorbox}[colback=black!90!white,coltext=green!90!white,fontupper=\ttfamily\footnotesize,title=\textbf{Terminal Output: Eksekusi Tugas 1}]
+======================================================\\
+     SIMULASI APLIKASI KASIR PEMBAYARAN RUMAH MAKAN   \\
+======================================================\\
+\\
+======================================================\\
+               DAFTAR MENU RUMAH MAKAN               \\
+======================================================\\
+No    Nama Makanan/Minuman            Harga Satuan\\
+------------------------------------------------------\\
+1     Nasi Goreng Spesial                   Rp 22000\\
+2     Ayam Bakar Madu                       Rp 28000\\
+3     Soto Ayam Lamongan                    Rp 20000\\
+4     Bebek Goreng Crispy                   Rp 35000\\
+5     Mie Goreng Seafood                    Rp 25000\\
+6     Es Teh Manis                          Rp  5000\\
+7     Es Jeruk Peras                        Rp  7000\\
+======================================================\\
+\\
+Masukkan nomor menu yang dipesan : 1\\
+Masukkan jumlah (porsi/item)    : 2\\
+>> Berhasil menambahkan 2x Nasi Goreng Spesial ke pesanan.\\
+Apakah ingin memesan menu lain? (y/n): y\\
+\\
+Masukkan nomor menu yang dipesan : 6\\
+Masukkan jumlah (porsi/item)    : 2\\
+>> Berhasil menambahkan 2x Es Teh Manis ke pesanan.\\
+Apakah ingin memesan menu lain? (y/n): n\\
+\\
+======================================================\\
+                   RINGKASAN PESANAN                  \\
+======================================================\\
+Item                    Qty            Harga      Subtotal\\
+------------------------------------------------------\\
+Nasi Goreng Spesial     2             Rp 22000    Rp 44000\\
+Es Teh Manis            2             Rp  5000    Rp 10000\\
+------------------------------------------------------\\
+TOTAL HARUS DIBAYAR:                              Rp 54000\\
+======================================================\\
+\\
+--- PROSES PEMBAYARAN ---\\
+Masukkan uang pembayaran dari pelanggan: Rp 40000\\
+>> Uang pembayaran kurang! Dibutuhkan minimal Rp 54000 (Kekurangan: Rp 14000)\\
+Masukkan uang pembayaran dari pelanggan: Rp 60000\\
+\\
+======================================================\\
+                   STRUK PEMBAYARAN                   \\
+======================================================\\
+Total Tagihan                 : Rp 54000\\
+Uang Pembayaran Pelanggan     : Rp 60000\\
+Uang Kembalian                : Rp 6000\\
+======================================================\\
+          Terima Kasih Atas Kunjungan Anda!          \\
+======================================================
+\end{tcolorbox}
+
+\newpage
+
+% --- BAB 3: TUGAS 2 - RECORD DATA MAHASISWA & FLOWCHART ---
+\section{Tugas 2: Sistem Record Data Mahasiswa \& Flowchart}
+
+\subsection{Deskripsi Kasus dan Kebutuhan Sistem}
+Berdasarkan instruksi soal nomor 2:
+\begin{quote}
+\textit{``Buatlah flowchart dan program menggunakan class untuk record data mahasiswa dengan fiture method untuk mengisikan data mahasiswa, melihat nilai, merubah nilai.''}
+\end{quote}
+
+Sistem record data mahasiswa ini dirancang untuk mengelola nilai akademik mahasiswa secara terkomputerisasi dengan fitur-fitur utama:
+\begin{enumerate}
+    \item \textbf{Method Pengisian Data Mahasiswa}: Merekam identitas mahasiswa (NIM, Nama, Jurusan) beserta nilai komponen akademik (Tugas, UTS, dan UAS) serta memverifikasi bahwa NIM belum pernah terdaftar.
+    \item \textbf{Method Melihat Nilai}: Menampilkan daftar seluruh mahasiswa dengan ringkasan nilai komponen, nilai akhir terhitung secara otomatis (bobot 30\% Tugas, 30\% UTS, 40\% UAS), serta predikat kelulusan (Grade A, B, C, D, E). Tersedia pula fungsi untuk melihat rincian nilai spesifik berdasarkan NIM.
+    \item \textbf{Method Merubah Nilai}: Melakukan pencarian data mahasiswa berdasarkan kunci NIM dan memperbarui nilai komponen dengan nilai baru.
+\end{enumerate}
+
+\subsection{Perancangan Class dan Method}
+Penerapan OOP pada Tugas 2 diorganisasikan ke dalam 2 \textit{class}:
+\begin{enumerate}
+    \item \textbf{Class \texttt{Mahasiswa}}:
+    \begin{itemize}
+        \item \textit{Data Anggota (Private)}:
+        \begin{itemize}
+            \item \texttt{string nim} (Nomor Induk Mahasiswa)
+            \item \texttt{string nama} (Nama Lengkap Mahasiswa)
+            \item \texttt{string jurusan} (Program Studi)
+            \item \texttt{double nilaiTugas}, \texttt{nilaiUTS}, \texttt{nilaiUAS}
+        \end{itemize}
+        \item \textit{Fungsi Anggota / Method (Public)}:
+        \begin{itemize}
+            \item \texttt{ubahNilai(tugas, uts, uas)}: Mengubah nilai komponen mahasiswa.
+            \item \texttt{hitungNilaiAkhir()}: Menghitung nilai akhir dengan rumus:
+            \[
+            \text{Nilai Akhir} = (0.30 \times \text{Tugas}) + (0.30 \times \text{UTS}) + (0.40 \times \text{UAS})
+            \]
+            \item \texttt{getGrade()}: Mengonversi nilai akhir menjadi predikat huruf (A jika $\ge 85$, B jika $\ge 75$, C jika $\ge 65$, D jika $\ge 50$, selainnya E).
+            \item \texttt{tampilkanData()}: Mencetak baris tabel informasi mahasiswa.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Class \texttt{RecordDataMahasiswa} / \texttt{RekamMedikMahasiswa}}:
+    \begin{itemize}
+        \item \textit{Data Anggota (Private)}:
+        \begin{itemize}
+            \item \texttt{vector<Mahasiswa> dataMahasiswa}: Wadah penyimpanan dinamis sekumpulan objek mahasiswa.
+            \item \texttt{int cariIndexByNim(string nim)}: Helper pencarian linier berdasarkan NIM.
+        \end{itemize}
+        \item \textit{Method (Public)}:
+        \begin{itemize}
+            \item \texttt{inputDataMahasiswa(Mahasiswa mhs)}: Method pengisian data mahasiswa baru.
+            \item \texttt{lihatNilaiSemua()}: Method menampilkan seluruh tabel nilai.
+            \item \texttt{lihatNilaiByNim(string nim)}: Method melihat detail nilai per mahasiswa.
+            \item \texttt{rubahNilaiMahasiswa(nim, tugasBaru, utsBaru, uasBaru)}: Method merubah data nilai mahasiswa.
+        \end{itemize}
+    \end{itemize}
+\end{enumerate}
+
+\newpage
+\subsection{Flowchart Sistem Record Data Mahasiswa}
+Berikut adalah diagram alir (\textit{flowchart}) lengkap sistem record data mahasiswa yang menggambarkan siklus menu utama dan eksekusi ketiga method utamanya:
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.92\textwidth}{!}{
+\begin{tikzpicture}[
+    node distance=1.3cm,
+    auto,
+    startstop/.style = {rectangle, rounded corners=12pt, minimum width=3.0cm, minimum height=0.85cm, text centered, draw=blue!70!black, fill=blue!15, font=\bfseries\footnotesize},
+    process/.style   = {rectangle, rounded corners=3pt, minimum width=3.5cm, minimum height=0.95cm, text centered, draw=orange!80!black, fill=orange!15, text width=3.6cm, font=\footnotesize},
+    decision/.style  = {diamond, aspect=2, minimum width=2.8cm, minimum height=0.85cm, text centered, draw=yellow!70!black, fill=yellow!25, text width=2.5cm, font=\footnotesize},
+    io/.style        = {trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3.2cm, minimum height=0.95cm, text centered, draw=teal!80!black, fill=teal!15, text width=3.2cm, font=\footnotesize},
+    arrow/.style     = {thick, ->, >=stealth}
+]
+
+    % --- Tulang Punggung Utama (Spine Vertikal) ---
+    \node (start) [startstop] {MULAI (Start)};
+    \node (init)  [process, below=0.7cm of start] {Inisialisasi Objek\\ \texttt{RecordDataMahasiswa}};
+    \node (menu)  [io, below=0.7cm of init] {Tampilkan Menu Utama\\ \& Input Pilihan (1--5)};
+    
+    % Decision Pilihan Menu
+    \node (dec1)  [decision, below=0.9cm of menu] {\textbf{Pilihan == 1?}\\(Input Data)};
+    \node (dec2)  [decision, below=0.9cm of dec1] {\textbf{Pilihan == 2?}\\(Lihat Semua)};
+    \node (dec3)  [decision, below=0.9cm of dec2] {\textbf{Pilihan == 3?}\\(Lihat Detail)};
+    \node (dec4)  [decision, below=0.9cm of dec3] {\textbf{Pilihan == 4?}\\(Ubah Nilai)};
+    \node (dec5)  [decision, below=0.9cm of dec4] {\textbf{Pilihan == 5?}\\(Keluar)};
+    
+    % Exit & Selesai
+    \node (exit)  [process, below=0.8cm of dec5] {Tampilkan Pesan\\ Selesai \& Penutup};
+    \node (stop)  [startstop, below=0.7cm of exit] {SELESAI (End)};
+
+    % --- Cabang Menu 1: Input Data ---
+    \node (p1_in)   [io, right=1.6cm of dec1] {Input NIM, Nama,\\ Jurusan, \& Nilai};
+    \node (p1_proc) [process, right=1.2cm of p1_in] {Validasi Keunikan NIM \&\\ Simpan Objek Mahasiswa\\ \scriptsize(\textit{Panggil \texttt{inputDataMahasiswa()}})};
+
+    % --- Cabang Menu 2: Lihat Semua ---
+    \node (p2_in)   [process, right=1.6cm of dec2] {Periksa Basis Data\\ \scriptsize(\textit{Cek Kosong / Ada Data})};
+    \node (p2_proc) [process, right=1.2cm of p2_in] {Hitung Nilai Akhir \& Grade,\\ Tampilkan Tabel Rekap\\ \scriptsize(\textit{Panggil \texttt{lihatNilaiSemua()}})};
+
+    % --- Cabang Menu 3: Lihat Detail ---
+    \node (p3_in)   [io, right=1.6cm of dec3] {Input NIM Mahasiswa\\ yang Dicari};
+    \node (p3_proc) [process, right=1.2cm of p3_in] {Cari NIM \& Tampilkan\\ Rincian Nilai Lengkap\\ \scriptsize(\textit{Panggil \texttt{lihatNilaiByNim()}})};
+
+    % --- Cabang Menu 4: Ubah Nilai ---
+    \node (p4_in)   [io, right=1.6cm of dec4] {Input NIM Target \&\\ Nilai Komponen Baru};
+    \node (p4_proc) [process, right=1.2cm of p4_in] {Cari NIM \& Eksekusi\\ Pembaruan Nilai\\ \scriptsize(\textit{Panggil \texttt{rubahNilaiMahasiswa()}})};
+
+    % --- Titik Jalur Bus Kembali ke Menu ---
+    \coordinate (bus) at ([xshift=1.0cm]p1_proc.east);
+
+    % --- Garis Spine Vertikal ---
+    \draw [arrow] (start) -- (init);
+    \draw [arrow] (init) -- (menu);
+    \draw [arrow] (menu) -- (dec1);
+    \draw [arrow] (dec1) -- node[left, font=\footnotesize] {Tidak} (dec2);
+    \draw [arrow] (dec2) -- node[left, font=\footnotesize] {Tidak} (dec3);
+    \draw [arrow] (dec3) -- node[left, font=\footnotesize] {Tidak} (dec4);
+    \draw [arrow] (dec4) -- node[left, font=\footnotesize] {Tidak} (dec5);
+    \draw [arrow] (dec5) -- node[left, font=\footnotesize] {Ya} (exit);
+    \draw [arrow] (exit) -- (stop);
+
+    % --- Garis Cabang Menu Horizontal ---
+    % Menu 1
+    \draw [arrow] (dec1) -- node[above, font=\footnotesize] {Ya} (p1_in);
+    \draw [arrow] (p1_in) -- (p1_proc);
+    \draw [thick] (p1_proc.east) -- (bus |- p1_proc.east);
+
+    % Menu 2
+    \draw [arrow] (dec2) -- node[above, font=\footnotesize] {Ya} (p2_in);
+    \draw [arrow] (p2_in) -- (p2_proc);
+    \draw [thick] (p2_proc.east) -- (bus |- p2_proc.east);
+
+    % Menu 3
+    \draw [arrow] (dec3) -- node[above, font=\footnotesize] {Ya} (p3_in);
+    \draw [arrow] (p3_in) -- (p3_proc);
+    \draw [thick] (p3_proc.east) -- (bus |- p3_proc.east);
+
+    % Menu 4
+    \draw [arrow] (dec4) -- node[above, font=\footnotesize] {Ya} (p4_in);
+    \draw [arrow] (p4_in) -- (p4_proc);
+    \draw [thick] (p4_proc.east) -- (bus |- p4_proc.east);
+
+    % Jalur Bus Tunggal Kembali ke Menu Utama
+    \draw [arrow] (bus |- p4_proc.east) -- (bus |- menu.east) -- (menu.east);
+
+    % Jalur Input Tidak Valid (Sisi Kiri)
+    \draw [arrow] (dec5.west) -- ++(-1.5cm,0) node[above, font=\footnotesize] {Invalid} |- (menu.west);
+
+\end{tikzpicture}
+}
+\caption{Flowchart Sistem Record Data Mahasiswa (Input, Lihat Nilai, Ubah Nilai)}
+\label{fig:flowchart_mhs}
+\end{figure}
+
+\newpage
+\subsection{Penjelasan Tahapan Flowchart}
+Alur logika pada Gambar~\ref{fig:flowchart_mhs} diuraikan sebagai berikut:
+\begin{enumerate}
+    \item \textbf{Mulai \& Inisialisasi}: Sistem memulai program dan menginisialisasi objek pengelola \texttt{RecordDataMahasiswa} beserta kontainer dinamis \texttt{vector}.
+    \item \textbf{Menu Utama}: Menampilkan pilihan opsi (1 sampai 5) dan menerima input dari pengguna.
+    \item \textbf{Opsi 1 (Mengisikan Data Mahasiswa)}:
+    \begin{itemize}
+        \item Pengguna memasukkan NIM, Nama, Jurusan, serta Nilai Tugas, UTS, dan UAS.
+        \item Sistem memeriksa keunikan NIM. Jika NIM sudah ada, muncul peringatan error.
+        \item Jika valid, objek \texttt{Mahasiswa} baru dibentuk dan ditambahkan ke dalam basis data.
+    \end{itemize}
+    \item \textbf{Opsi 2 \& 3 (Melihat Nilai)}:
+    \begin{itemize}
+        \item Opsi 2 menampilkan seluruh record mahasiswa dalam bentuk tabel ringkas.
+        \item Opsi 3 meminta masukan NIM spesifik, mencari keberadaannya, dan menampilkan nilai detail beserta kalkulasi Nilai Akhir dan predikat Grade.
+    \end{itemize}
+    \item \textbf{Opsi 4 (Merubah Nilai)}:
+    \begin{itemize}
+        \item Pengguna memasukkan NIM target yang ingin diperbarui nilainya.
+        \item Jika NIM ditemukan, pengguna menginput nilai Tugas, UTS, dan UAS yang baru.
+        \item Method \texttt{ubahNilai()} dieksekusi untuk memperbarui data atribut objek mahasiswa tersebut.
+    \end{itemize}
+    \item \textbf{Opsi 5 (Keluar)}: Mengakhiri eksekusi program dengan mencetak pesan penutup.
+\end{enumerate}
+
+\newpage
+\subsection{Source Code C++ Record Mahasiswa (\texttt{tugas2\_mahasiswa.cpp})}
+Berikut adalah implementasi kode program lengkap C++ untuk Tugas 2:
+
+\begin{lstlisting}[language=C++, caption={Source Code Record Data Mahasiswa (tugas2\_mahasiswa.cpp)}]
+#include <iostream>
+#include <vector>
+#include <string>
+#include <iomanip>
+#include <limits>
+
+using namespace std;
+
+// Class yang merepresentasikan entitas Mahasiswa
+class Mahasiswa {
+private:
+    string nim;
+    string nama;
+    string jurusan;
+    double nilaiTugas;
+    double nilaiUTS;
+    double nilaiUAS;
+
+public:
+    Mahasiswa() : nim(""), nama(""), jurusan(""), nilaiTugas(0), nilaiUTS(0), nilaiUAS(0) {}
+
+    Mahasiswa(string idNim, string namaMhs, string jur, double tugas, double uts, double uas) {
+        nim = idNim;
+        nama = namaMhs;
+        jurusan = jur;
+        nilaiTugas = tugas;
+        nilaiUTS = uts;
+        nilaiUAS = uas;
+    }
+
+    string getNim() const { return nim; }
+    string getNama() const { return nama; }
+    string getJurusan() const { return jurusan; }
+    double getNilaiTugas() const { return nilaiTugas; }
+    double getNilaiUTS() const { return nilaiUTS; }
+    double getNilaiUAS() const { return nilaiUAS; }
+
+    // Method untuk merubah nilai mahasiswa
+    void ubahNilai(double tugasBaru, double utsBaru, double uasBaru) {
+        nilaiTugas = tugasBaru;
+        nilaiUTS = utsBaru;
+        nilaiUAS = uasBaru;
+    }
+
+    // Method menghitung Nilai Akhir (Bobot: Tugas 30%, UTS 30%, UAS 40%)
+    double hitungNilaiAkhir() const {
+        return (0.30 * nilaiTugas) + (0.30 * nilaiUTS) + (0.40 * nilaiUAS);
+    }
+
+    // Method menentukan Grade Huruf
+    string getGrade() const {
+        double na = hitungNilaiAkhir();
+        if (na >= 85) return "A";
+        else if (na >= 75) return "B";
+        else if (na >= 65) return "C";
+        else if (na >= 50) return "D";
+        else return "E";
+    }
+
+    void tampilkanData() const {
+        cout << left << setw(14) << nim
+             << setw(22) << nama
+             << setw(18) << jurusan
+             << right << setw(8) << fixed << setprecision(1) << nilaiTugas
+             << setw(8) << nilaiUTS
+             << setw(8) << nilaiUAS
+             << setw(10) << hitungNilaiAkhir()
+             << setw(7)  << getGrade() << "\n";
+    }
+};
+
+// Class pengelola sekumpulan Record Mahasiswa
+class RekamMedikMahasiswa {
+private:
+    vector<Mahasiswa> dataMahasiswa;
+
+    int cariIndexByNim(const string& nim) const {
+        for (size_t i = 0; i < dataMahasiswa.size(); ++i) {
+            if (dataMahasiswa[i].getNim() == nim) {
+                return static_cast<int>(i);
+            }
+        }
+        return -1;
+    }
+
+public:
+    // Method 1: Mengisikan data mahasiswa baru
+    bool inputDataMahasiswa(const Mahasiswa& mhs) {
+        if (cariIndexByNim(mhs.getNim()) != -1) {
+            cout << ">> Error: Mahasiswa dengan NIM " << mhs.getNim() << " sudah terdaftar!\n";
+            return false;
+        }
+        dataMahasiswa.push_back(mhs);
+        cout << ">> Sukses: Data mahasiswa " << mhs.getNama() << " (" << mhs.getNim() << ") berhasil disimpan.\n";
+        return true;
+    }
+
+    // Method 2: Melihat nilai seluruh mahasiswa
+    void lihatNilaiSemua() const {
+        if (dataMahasiswa.empty()) {
+            cout << ">> Belum ada data mahasiswa yang tersimpan.\n";
+            return;
+        }
+
+        cout << "\n==========================================================================================\n";
+        cout << "                                  DAFTAR NILAI MAHASISWA                                  \n";
+        cout << "==========================================================================================\n";
+        cout << left << setw(14) << "NIM"
+             << setw(22) << "Nama"
+             << setw(18) << "Jurusan"
+             << right << setw(8) << "Tugas"
+             << setw(8) << "UTS"
+             << setw(8) << "UAS"
+             << setw(10) << "Akhir"
+             << setw(7)  << "Grade" << "\n";
+        cout << "------------------------------------------------------------------------------------------\n";
+
+        for (const auto& mhs : dataMahasiswa) {
+            mhs.tampilkanData();
+        }
+        cout << "==========================================================================================\n";
+    }
+
+    // Method melihat rincian nilai per NIM
+    void lihatNilaiByNim(const string& nim) const {
+        int idx = cariIndexByNim(nim);
+        if (idx == -1) {
+            cout << ">> Mahasiswa dengan NIM " << nim << " tidak ditemukan.\n";
+            return;
+        }
+
+        const Mahasiswa& m = dataMahasiswa[idx];
+        cout << "\n======================================================\n";
+        cout << "              RECORD DETAIL NILAI MAHASISWA           \n";
+        cout << "======================================================\n";
+        cout << left << setw(18) << "NIM" << ": " << m.getNim() << "\n";
+        cout << left << setw(18) << "Nama" << ": " << m.getNama() << "\n";
+        cout << left << setw(18) << "Jurusan" << ": " << m.getJurusan() << "\n";
+        cout << "------------------------------------------------------\n";
+        cout << left << setw(18) << "Nilai Tugas (30%)" << ": " << fixed << setprecision(1) << m.getNilaiTugas() << "\n";
+        cout << left << setw(18) << "Nilai UTS (30%)"   << ": " << fixed << setprecision(1) << m.getNilaiUTS() << "\n";
+        cout << left << setw(18) << "Nilai UAS (40%)"   << ": " << fixed << setprecision(1) << m.getNilaiUAS() << "\n";
+        cout << "------------------------------------------------------\n";
+        cout << left << setw(18) << "Nilai Akhir"       << ": " << fixed << setprecision(2) << m.hitungNilaiAkhir() << "\n";
+        cout << left << setw(18) << "Grade"             << ": " << m.getGrade() << "\n";
+        cout << "======================================================\n";
+    }
+
+    // Method 3: Merubah nilai mahasiswa
+    bool rubahNilaiMahasiswa(const string& nim, double tugasBaru, double utsBaru, double uasBaru) {
+        int idx = cariIndexByNim(nim);
+        if (idx == -1) {
+            cout << ">> Error: Mahasiswa dengan NIM " << nim << " tidak ditemukan!\n";
+            return false;
+        }
+        dataMahasiswa[idx].ubahNilai(tugasBaru, utsBaru, uasBaru);
+        cout << ">> Sukses: Nilai mahasiswa " << dataMahasiswa[idx].getNama() 
+             << " (" << nim << ") berhasil diperbarui!\n";
+        return true;
+    }
+
+    bool isKosong() const { return dataMahasiswa.empty(); }
+};
+
+double inputNilaiValid(const string& label) {
+    double nilai;
+    while (true) {
+        cout << label;
+        if (cin >> nilai) {
+            if (nilai >= 0.0 && nilai <= 100.0) {
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                return nilai;
+            } else {
+                cout << ">> Nilai harus berada dalam rentang 0 sampai 100!\n";
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+        } else {
+            cout << ">> Input salah! Masukkan angka yang valid.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    }
+}
+
+int main() {
+    RekamMedikMahasiswa recordMhs;
+    int pilihan;
+
+    do {
+        cout << "\n======================================================\n";
+        cout << "       SISTEM RECORD DATA MAHASISWA (OOP C++)         \n";
+        cout << "======================================================\n";
+        cout << " 1. Mengisikan Data Mahasiswa (Input Data Baru)       \n";
+        cout << " 2. Melihat Nilai (Semua Mahasiswa)                   \n";
+        cout << " 3. Melihat Nilai (Berdasarkan NIM Mahasiswa)         \n";
+        cout << " 4. Merubah Nilai Mahasiswa                           \n";
+        cout << " 5. Keluar                                            \n";
+        cout << "======================================================\n";
+        cout << "Pilih menu [1-5]: ";
+
+        if (!(cin >> pilihan)) {
+            cout << "Input tidak valid! Masukkan angka 1-5.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        switch (pilihan) {
+            case 1: {
+                cout << "\n--- INPUT DATA MAHASISWA BARU ---\n";
+                string nim, nama, jurusan;
+                cout << "Masukkan NIM     : "; getline(cin, nim);
+                cout << "Masukkan Nama    : "; getline(cin, nama);
+                cout << "Masukkan Jurusan : "; getline(cin, jurusan);
+
+                double tugas = inputNilaiValid("Masukkan Nilai Tugas (0-100): ");
+                double uts   = inputNilaiValid("Masukkan Nilai UTS (0-100)  : ");
+                double uas   = inputNilaiValid("Masukkan Nilai UAS (0-100)  : ");
+
+                Mahasiswa mhsBaru(nim, nama, jurusan, tugas, uts, uas);
+                recordMhs.inputDataMahasiswa(mhsBaru);
+                break;
+            }
+            case 2: {
+                recordMhs.lihatNilaiSemua();
+                break;
+            }
+            case 3: {
+                if (recordMhs.isKosong()) {
+                    cout << ">> Data mahasiswa masih kosong.\n";
+                } else {
+                    string nim;
+                    cout << "Masukkan NIM mahasiswa yang ingin dilihat: ";
+                    getline(cin, nim);
+                    recordMhs.lihatNilaiByNim(nim);
+                }
+                break;
+            }
+            case 4: {
+                if (recordMhs.isKosong()) {
+                    cout << ">> Data mahasiswa masih kosong.\n";
+                } else {
+                    string nim;
+                    cout << "\n--- MERUBAH NILAI MAHASISWA ---\n";
+                    cout << "Masukkan NIM mahasiswa yang akan diubah nilainya: ";
+                    getline(cin, nim);
+
+                    cout << "\nMasukkan data nilai baru:\n";
+                    double tugasBaru = inputNilaiValid("Nilai Tugas Baru (0-100): ");
+                    double utsBaru   = inputNilaiValid("Nilai UTS Baru (0-100)  : ");
+                    double uasBaru   = inputNilaiValid("Nilai UAS Baru (0-100)  : ");
+
+                    recordMhs.rubahNilaiMahasiswa(nim, tugasBaru, utsBaru, uasBaru);
+                }
+                break;
+            }
+            case 5: {
+                cout << "\nTerima kasih telah menggunakan sistem record data mahasiswa.\n";
+                break;
+            }
+            default: {
+                cout << ">> Pilihan menu tidak valid! Silakan pilih antara 1-5.\n";
+                break;
+            }
+        }
+    } while (pilihan != 5);
+
+    return 0;
+}
+\end{lstlisting}
+
+\newpage
+\subsection{Hasil Uji Coba Eksekusi Program Record Mahasiswa}
+Berikut adalah demonstrasi pengujian fungsional program:
+
+\subsubsection{Pengujian 1: Mengisikan Data Mahasiswa Baru}
+\begin{tcolorbox}[colback=black!90!white,coltext=green!90!white,fontupper=\ttfamily\footnotesize,title=\textbf{Terminal Output: Input Data Mahasiswa}]
+--- INPUT DATA MAHASISWA BARU ---\\
+Masukkan NIM     : 163251001\\
+Masukkan Nama    : Hellyos Ageng Haqiqie\\
+Masukkan Jurusan : Robotics \& AI Engineering\\
+Masukkan Nilai Tugas (0-100): 88\\
+Masukkan Nilai UTS (0-100)  : 92\\
+Masukkan Nilai UAS (0-100)  : 95\\
+>> Sukses: Data mahasiswa Hellyos Ageng Haqiqie (163251001) berhasil disimpan.
+\end{tcolorbox}
+
+\subsubsection{Pengujian 2: Melihat Seluruh Data dan Nilai Mahasiswa}
+\begin{tcolorbox}[colback=black!90!white,coltext=green!90!white,fontupper=\ttfamily\footnotesize,title=\textbf{Terminal Output: Melihat Semua Nilai}]
+==========================================================================================\\
+                                  DAFTAR NILAI MAHASISWA                                  \\
+==========================================================================================\\
+NIM           Nama                  Jurusan                        Tugas   UTS   UAS   Akhir  Grade\\
+------------------------------------------------------------------------------------------\\
+163251001     Hellyos Ageng Haqiqie Robotics \& AI Engineering     88.0   92.0  95.0    92.0      A\\
+==========================================================================================
+\end{tcolorbox}
+
+\subsubsection{Pengujian 3: Merubah Nilai Mahasiswa}
+\begin{tcolorbox}[colback=black!90!white,coltext=green!90!white,fontupper=\ttfamily\footnotesize,title=\textbf{Terminal Output: Merubah Nilai Mahasiswa}]
+--- MERUBAH NILAI MAHASISWA ---\\
+Masukkan NIM mahasiswa yang akan diubah nilainya: 163251001\\
+\\
+Masukkan data nilai baru:\\
+Nilai Tugas Baru (0-100): 95\\
+Nilai UTS Baru (0-100)  : 95\\
+Nilai UAS Baru (0-100)  : 98\\
+>> Sukses: Nilai mahasiswa Hellyos Ageng Haqiqie (163251001) berhasil diperbarui!
+\end{tcolorbox}
+
+\subsubsection{Pengujian 4: Memverifikasi Nilai Setelah Diubah}
+\begin{tcolorbox}[colback=black!90!white,coltext=green!90!white,fontupper=\ttfamily\footnotesize,title=\textbf{Terminal Output: Detail Nilai Setelah Perubahan}]
+======================================================\\
+              RECORD DETAIL NILAI MAHASISWA           \\
+======================================================\\
+NIM               : 163251001\\
+Nama              : Hellyos Ageng Haqiqie\\
+Jurusan           : Robotics \& AI Engineering\\
+------------------------------------------------------\\
+Nilai Tugas (30\%) : 95.0\\
+Nilai UTS (30\%)   : 95.0\\
+Nilai UAS (40\%)   : 98.0\\
+------------------------------------------------------\\
+Nilai Akhir       : 96.20\\
+Grade             : A\\
+======================================================
+\end{tcolorbox}
+
+\newpage
+% --- BAB 4: KESIMPULAN ---
+\section{Kesimpulan}
+Dari implementasi kedua program dan penyusunan laporan ini, dapat disimpulkan bahwa:
+\begin{enumerate}
+    \item Pemrograman Berorientasi Objek (OOP) dengan C++ mempermudah perancangan aplikasi modular di mana data dan aksi dibungkus (\textit{encapsulated}) di dalam \textit{class}.
+    \item Pada Tugas 1 (Kasir Rumah Makan), pemisahan antara entitas menu (\texttt{Menu}), entitas item belanja (\texttt{ItemPesanan}), dan entitas pengendali transaksi (\texttt{KasirRumahMakan}) menciptakan alur data yang aman, terhindar dari manipulasi variabel global, serta memudahkan kalkulasi tagihan dan kembalian.
+    \item Pada Tugas 2 (Record Data Mahasiswa), \textit{method} \texttt{inputDataMahasiswa()}, \texttt{lihatNilaiSemua()}, dan \texttt{rubahNilaiMahasiswa()} mampu merealisasikan fungsionalitas CRUD secara efisien melalui pemanfaatan struktur data \texttt{std::vector}.
+    \item Perancangan \textit{flowchart} menggunakan standar visual yang terstruktur memberikan panduan yang jelas sebelum penulisan kode, meminimalisasi kesalahan logika percabangan, serta mendokumentasikan sistem secara komprehensif.
+\end{enumerate}
+
+\end{document}
