@@ -88,7 +88,7 @@
 % --- IDENTITAS MAHASISWA & JUDUL TUGAS ---
 \begin{center}
     {\Large \textbf{PEMROGRAMAN BERORIENTASI OBJEK (PBO)}}\\[0.2cm]
-    {\large \textbf{Topik: Implementasi Class dan Method pada C++}}\\[0.4cm]
+    {\large \textbf{Topik: Implementasi Class dan Method pada C++ dan Python}}\\[0.4cm]
     \begin{tabular}{ll}
         \textbf{Nama}    & : Hellyos Ageng Haqiqie \\
         \textbf{NIM}     & : 163251001 \\
@@ -426,6 +426,241 @@ Masukkan uang pembayaran dari pelanggan: Rp 60000\\
 Total Tagihan                 : Rp 54000\\
 Uang Pembayaran Pelanggan     : Rp 60000\\
 Uang Kembalian                : Rp 6000\\
+======================================================\\
+          Terima Kasih Atas Kunjungan Anda!          \\
+======================================================
+\end{tcolorbox}
+
+\newpage
+\subsection{Source Code Python Program Kasir (\texttt{tugas1\_kasir.py})}
+Berikut adalah implementasi program kasir pembayaran rumah makan dalam bahasa pemrograman Python:
+
+\begin{lstlisting}[language=Python, caption={Source Code Kasir Rumah Makan Versi Python (tugas1\_kasir.py)}]
+class Menu:
+    """Class untuk merepresentasikan entitas menu makanan/minuman."""
+    def __init__(self, id_menu: int, nama_menu: str, harga_menu: float):
+        self._id = id_menu
+        self._nama = nama_menu
+        self._harga = harga_menu
+
+    def get_id(self) -> int:
+        return self._id
+
+    def get_nama(self) -> str:
+        return self._nama
+
+    def get_harga(self) -> float:
+        return self._harga
+
+
+class ItemPesanan:
+    """Class untuk merepresentasikan item pesanan yang dipilih."""
+    def __init__(self, menu: Menu, jumlah: int):
+        self._menu = menu
+        self._jumlah = jumlah
+
+    def get_menu(self) -> Menu:
+        return self._menu
+
+    def get_jumlah(self) -> int:
+        return self._jumlah
+
+    def get_subtotal(self) -> float:
+        return self._menu.get_harga() * self._jumlah
+
+
+class KasirRumahMakan:
+    """Class utama kasir rumah makan yang mengelola katalog dan transaksi."""
+    def __init__(self):
+        self._daftar_menu = [
+            Menu(1, "Nasi Goreng Spesial", 22000),
+            Menu(2, "Ayam Bakar Madu", 28000),
+            Menu(3, "Soto Ayam Lamongan", 20000),
+            Menu(4, "Bebek Goreng Crispy", 35000),
+            Menu(5, "Mie Goreng Seafood", 25000),
+            Menu(6, "Es Teh Manis", 5000),
+            Menu(7, "Es Jeruk Peras", 7000)
+        ]
+        self._pesanan: list[ItemPesanan] = []
+
+    def tampilkan_menu(self):
+        print("\n" + "=" * 54)
+        print("               DAFTAR MENU RUMAH MAKAN               ")
+        print("=" * 54)
+        print(f"{'No':<6}{'Nama Makanan/Minuman':<26}{'Harga Satuan':>18}")
+        print("-" * 54)
+        for item in self._daftar_menu:
+            print(f"{item.get_id():<6}{item.get_nama():<26}{'Rp ' + f'{item.get_harga():,.0f}':>18}")
+        print("=" * 54)
+
+    def cari_menu_by_id(self, id_menu: int) -> Menu | None:
+        for m in self._daftar_menu:
+            if m.get_id() == id_menu:
+                return m
+        return None
+
+    def tambah_pesanan(self, id_menu: int, jumlah: int) -> bool:
+        if jumlah <= 0:
+            print(">> Error: Jumlah pesanan harus lebih dari 0!")
+            return False
+
+        menu_dipilih = self.cari_menu_by_id(id_menu)
+        if menu_dipilih:
+            self._pesanan.append(ItemPesanan(menu_dipilih, jumlah))
+            print(f">> Berhasil menambahkan {jumlah}x {menu_dipilih.get_nama()} ke pesanan.")
+            return True
+        else:
+            print(">> Error: Nomor menu tidak valid!")
+            return False
+
+    def hitung_total(self) -> float:
+        return sum(item.get_subtotal() for item in self._pesanan)
+
+    def tampilkan_pesanan(self):
+        if not self._pesanan:
+            print(">> Belum ada makanan yang dipesan.")
+            return
+
+        print("\n" + "=" * 54)
+        print("                   RINGKASAN PESANAN                  ")
+        print("=" * 54)
+        print(f"{'Item':<24}{'Qty':<8}{'Harga':>10}{'Subtotal':>12}")
+        print("-" * 54)
+        for p in self._pesanan:
+            print(f"{p.get_menu().get_nama():<24}{p.get_jumlah():<8}{'Rp ' + f'{p.get_menu().get_harga():,.0f}':>10}{'Rp ' + f'{p.get_subtotal():,.0f}':>12}")
+        print("-" * 54)
+        print(f"{'TOTAL HARUS DIBAYAR:':<32}{'Rp ' + f'{self.hitung_total():,.0f}':>22}")
+        print("=" * 54)
+
+    def proses_pembayaran(self, uang_bayar: float):
+        total = self.hitung_total()
+        kembalian = uang_bayar - total
+
+        print("\n" + "=" * 54)
+        print("                   STRUK PEMBAYARAN                   ")
+        print("=" * 54)
+        print(f"{'Total Tagihan':<30}: Rp {total:,.0f}")
+        print(f"{'Uang Pembayaran Pelanggan':<30}: Rp {uang_bayar:,.0f}")
+        print(f"{'Uang Kembalian':<30}: Rp {kembalian:,.0f}")
+        print("=" * 54)
+        print("          Terima Kasih Atas Kunjungan Anda!          ")
+        print("=" * 54 + "\n")
+
+    def ada_pesanan(self) -> bool:
+        return len(self._pesanan) > 0
+
+
+def main():
+    kasir = KasirRumahMakan()
+
+    print("======================================================")
+    print("     SIMULASI APLIKASI KASIR PEMBAYARAN RUMAH MAKAN   ")
+    print("======================================================")
+
+    kasir.tampilkan_menu()
+
+    while True:
+        while True:
+            try:
+                pilihan_menu = int(input("\nMasukkan nomor menu yang dipesan : "))
+                if kasir.cari_menu_by_id(pilihan_menu) is not None:
+                    break
+                print(">> Nomor menu tidak ditemukan! Masukkan nomor yang valid.")
+            except ValueError:
+                print(">> Input tidak valid! Harap masukkan angka.")
+
+        while True:
+            try:
+                jumlah = int(input("Masukkan jumlah (porsi/item)    : "))
+                if jumlah > 0:
+                    break
+                print(">> Jumlah harus berupa angka bulat positif!")
+            except ValueError:
+                print(">> Input tidak valid! Harap masukkan angka bulat.")
+
+        kasir.tambah_pesanan(pilihan_menu, jumlah)
+
+        lanjut = input("Apakah ingin memesan menu lain? (y/n): ").strip().lower()
+        if lanjut != 'y':
+            break
+
+    if not kasir.ada_pesanan():
+        print("\nTidak ada pesanan yang diproses. Program selesai.")
+        return
+
+    kasir.tampilkan_pesanan()
+
+    total_bayar = kasir.hitung_total()
+    while True:
+        try:
+            uang_bayar = float(input("\nMasukkan uang pembayaran dari pelanggan: Rp "))
+            if uang_bayar >= total_bayar:
+                break
+            else:
+                kekurangan = total_bayar - uang_bayar
+                print(f">> Uang pembayaran kurang! Dibutuhkan minimal Rp {total_bayar:,.0f} (Kekurangan: Rp {kekurangan:,.0f})")
+        except ValueError:
+            print(">> Input salah! Harap masukkan nominal uang yang valid.")
+
+    kasir.proses_pembayaran(uang_bayar)
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\subsection{Hasil Uji Coba Eksekusi Program Kasir (Versi Python)}
+Contoh pengujian program kasir rumah makan saat dijalankan pada terminal Python:
+\begin{tcolorbox}[colback=black!90!white,coltext=green!90!white,fontupper=\ttfamily\footnotesize,title=\textbf{Terminal Output: Eksekusi Python Kasir Rumah Makan}]
+======================================================\\
+     SIMULASI APLIKASI KASIR PEMBAYARAN RUMAH MAKAN   \\
+======================================================\\
+\\
+======================================================\\
+               DAFTAR MENU RUMAH MAKAN               \\
+======================================================\\
+No    Nama Makanan/Minuman            Harga Satuan\\
+------------------------------------------------------\\
+1     Nasi Goreng Spesial                 Rp 22,000\\
+2     Ayam Bakar Madu                     Rp 28,000\\
+3     Soto Ayam Lamongan                  Rp 20,000\\
+4     Bebek Goreng Crispy                 Rp 35,000\\
+5     Mie Goreng Seafood                  Rp 25,000\\
+6     Es Teh Manis                        Rp  5,000\\
+7     Es Jeruk Peras                      Rp  7,000\\
+======================================================\\
+\\
+Masukkan nomor menu yang dipesan : 1\\
+Masukkan jumlah (porsi/item)    : 2\\
+>> Berhasil menambahkan 2x Nasi Goreng Spesial ke pesanan.\\
+Apakah ingin memesan menu lain? (y/n): y\\
+\\
+Masukkan nomor menu yang dipesan : 6\\
+Masukkan jumlah (porsi/item)    : 2\\
+>> Berhasil menambahkan 2x Es Teh Manis ke pesanan.\\
+Apakah ingin memesan menu lain? (y/n): n\\
+\\
+======================================================\\
+                   RINGKASAN PESANAN                  \\
+======================================================\\
+Item                    Qty         Harga    Subtotal\\
+------------------------------------------------------\\
+Nasi Goreng Spesial     2        Rp 22,000  Rp 44,000\\
+Es Teh Manis            2        Rp  5,000  Rp 10,000\\
+------------------------------------------------------\\
+TOTAL HARUS DIBAYAR:                        Rp 54,000\\
+======================================================\\
+\\
+Masukkan uang pembayaran dari pelanggan: Rp 40000\\
+>> Uang pembayaran kurang! Dibutuhkan minimal Rp 54,000 (Kekurangan: Rp 14,000)\\
+Masukkan uang pembayaran dari pelanggan: Rp 60000\\
+\\
+======================================================\\
+                   STRUK PEMBAYARAN                   \\
+======================================================\\
+Total Tagihan                 : Rp 54,000\\
+Uang Pembayaran Pelanggan     : Rp 60,000\\
+Uang Kembalian                : Rp 6,000\\
 ======================================================\\
           Terima Kasih Atas Kunjungan Anda!          \\
 ======================================================
@@ -948,14 +1183,273 @@ Grade             : A\\
 \end{tcolorbox}
 
 \newpage
-% --- BAB 4: KESIMPULAN ---
+\subsection{Source Code Python Record Mahasiswa (\texttt{tugas2\_mahasiswa.py})}
+Berikut adalah implementasi sistem record data mahasiswa menggunakan bahasa pemrograman Python:
+
+\begin{lstlisting}[language=Python, caption={Source Code Record Data Mahasiswa Versi Python (tugas2\_mahasiswa.py)}]
+class Mahasiswa:
+    """Class yang merepresentasikan entitas Mahasiswa."""
+    def __init__(self, nim: str, nama: str, jurusan: str, tugas: float = 0.0, uts: float = 0.0, uas: float = 0.0):
+        self._nim = nim
+        self._nama = nama
+        self._jurusan = jurusan
+        self._nilai_tugas = tugas
+        self._nilai_uts = uts
+        self._nilai_uas = uas
+
+    def get_nim(self) -> str:
+        return self._nim
+
+    def get_nama(self) -> str:
+        return self._nama
+
+    def get_jurusan(self) -> str:
+        return self._jurusan
+
+    def get_nilai_tugas(self) -> float:
+        return self._nilai_tugas
+
+    def get_nilai_uts(self) -> float:
+        return self._nilai_uts
+
+    def get_nilai_uas(self) -> float:
+        return self._nilai_uas
+
+    def ubah_nilai(self, tugas_baru: float, uts_baru: float, uas_baru: float):
+        self._nilai_tugas = tugas_baru
+        self._nilai_uts = uts_baru
+        self._nilai_uas = uas_baru
+
+    def hitung_nilai_akhir(self) -> float:
+        return (0.30 * self._nilai_tugas) + (0.30 * self._nilai_uts) + (0.40 * self._nilai_uas)
+
+    def get_grade(self) -> str:
+        na = self.hitung_nilai_akhir()
+        if na >= 85:
+            return "A"
+        elif na >= 75:
+            return "B"
+        elif na >= 65:
+            return "C"
+        elif na >= 50:
+            return "D"
+        else:
+            return "E"
+
+    def tampilkan_data(self):
+        print(f"{self._nim:<14}{self._nama:<22}{self._jurusan:<26}"
+              f"{self._nilai_tugas:>8.1f}{self._nilai_uts:>8.1f}{self._nilai_uas:>8.1f}"
+              f"{self.hitung_nilai_akhir():>10.2f}{self.get_grade():>7}")
+
+
+class RecordDataMahasiswa:
+    """Class pengelola sekumpulan Record Mahasiswa."""
+    def __init__(self):
+        self._data_mahasiswa: list[Mahasiswa] = []
+
+    def cari_index_by_nim(self, nim: str) -> int:
+        for i, mhs in enumerate(self._data_mahasiswa):
+            if mhs.get_nim() == nim:
+                return i
+        return -1
+
+    def input_data_mahasiswa(self, mhs: Mahasiswa) -> bool:
+        if self.cari_index_by_nim(mhs.get_nim()) != -1:
+            print(f">> Error: Mahasiswa dengan NIM {mhs.get_nim()} sudah terdaftar!")
+            return False
+
+        self._data_mahasiswa.append(mhs)
+        print(f">> Sukses: Data mahasiswa {mhs.get_nama()} ({mhs.get_nim()}) berhasil disimpan.")
+        return True
+
+    def lihat_nilai_semua(self):
+        if not self._data_mahasiswa:
+            print(">> Belum ada data mahasiswa yang tersimpan.")
+            return
+
+        print("\n" + "=" * 95)
+        print("                              DAFTAR NILAI MAHASISWA                              ")
+        print("=" * 95)
+        print(f"{'NIM':<14}{'Nama':<22}{'Jurusan':<26}{'Tugas':>8}{'UTS':>8}{'UAS':>8}{'Akhir':>10}{'Grade':>7}")
+        print("-" * 95)
+        for mhs in self._data_mahasiswa:
+            mhs.tampilkan_data()
+        print("=" * 95)
+
+    def lihat_nilai_by_nim(self, nim: str):
+        idx = self.cari_index_by_nim(nim)
+        if idx == -1:
+            print(f">> Mahasiswa dengan NIM {nim} tidak ditemukan.")
+            return
+
+        m = self._data_mahasiswa[idx]
+        print("\n" + "=" * 54)
+        print("              RECORD DETAIL NILAI MAHASISWA           ")
+        print("=" * 54)
+        print(f"{'NIM':<18}: {m.get_nim()}")
+        print(f"{'Nama':<18}: {m.get_nama()}")
+        print(f"{'Jurusan':<18}: {m.get_jurusan()}")
+        print("-" * 54)
+        print(f"{'Nilai Tugas (30%)':<18}: {m.get_nilai_tugas():.1f}")
+        print(f"{'Nilai UTS (30%)':<18}: {m.get_nilai_uts():.1f}")
+        print(f"{'Nilai UAS (40%)':<18}: {m.get_nilai_uas():.1f}")
+        print("-" * 54)
+        print(f"{'Nilai Akhir':<18}: {m.hitung_nilai_akhir():.2f}")
+        print(f"{'Grade':<18}: {m.get_grade()}")
+        print("=" * 54)
+
+    def rubah_nilai_mahasiswa(self, nim: str, tugas_baru: float, uts_baru: float, uas_baru: float) -> bool:
+        idx = self.cari_index_by_nim(nim)
+        if idx == -1:
+            print(f">> Error: Mahasiswa dengan NIM {nim} tidak ditemukan! Perubahan dibatalkan.")
+            return False
+
+        self._data_mahasiswa[idx].ubah_nilai(tugas_baru, uts_baru, uas_baru)
+        print(f">> Sukses: Nilai mahasiswa {self._data_mahasiswa[idx].get_nama()} ({nim}) berhasil diperbarui!")
+        return True
+
+    def is_kosong(self) -> bool:
+        return len(self._data_mahasiswa) == 0
+
+
+def input_nilai_valid(prompt: str) -> float:
+    while True:
+        try:
+            val = float(input(prompt))
+            if 0.0 <= val <= 100.0:
+                return val
+            print(">> Nilai harus berada dalam rentang 0 sampai 100!")
+        except ValueError:
+            print(">> Input salah! Harap masukkan angka yang valid.")
+
+
+def main():
+    record_mhs = RecordDataMahasiswa()
+
+    while True:
+        print("\n======================================================")
+        print("       SISTEM RECORD DATA MAHASISWA (OOP Python)      ")
+        print("======================================================")
+        print(" 1. Mengisikan Data Mahasiswa (Input Data Baru)       ")
+        print(" 2. Melihat Nilai (Semua Mahasiswa)                   ")
+        print(" 3. Melihat Nilai (Berdasarkan NIM Mahasiswa)         ")
+        print(" 4. Merubah Nilai Mahasiswa                           ")
+        print(" 5. Keluar                                            ")
+        print("======================================================")
+
+        try:
+            pilihan = int(input("Pilih menu [1-5]: "))
+        except ValueError:
+            print("Input tidak valid! Harap masukkan angka 1-5.")
+            continue
+
+        if pilihan == 1:
+            print("\n--- INPUT DATA MAHASISWA BARU ---")
+            nim = input("Masukkan NIM     : ").strip()
+            nama = input("Masukkan Nama    : ").strip()
+            jurusan = input("Masukkan Jurusan : ").strip()
+
+            tugas = input_nilai_valid("Masukkan Nilai Tugas (0-100): ")
+            uts = input_nilai_valid("Masukkan Nilai UTS (0-100)  : ")
+            uas = input_nilai_valid("Masukkan Nilai UAS (0-100)  : ")
+
+            mhs_baru = Mahasiswa(nim, nama, jurusan, tugas, uts, uas)
+            record_mhs.input_data_mahasiswa(mhs_baru)
+
+        elif pilihan == 2:
+            record_mhs.lihat_nilai_semua()
+
+        elif pilihan == 3:
+            if record_mhs.is_kosong():
+                print(">> Data mahasiswa masih kosong.")
+            else:
+                nim = input("Masukkan NIM mahasiswa yang ingin dilihat: ").strip()
+                record_mhs.lihat_nilai_by_nim(nim)
+
+        elif pilihan == 4:
+            if record_mhs.is_kosong():
+                print(">> Data mahasiswa masih kosong.")
+            else:
+                print("\n--- MERUBAH NILAI MAHASISWA ---")
+                nim = input("Masukkan NIM mahasiswa yang akan diubah nilainya: ").strip()
+                if record_mhs.cari_index_by_nim(nim) == -1:
+                    print(f">> Mahasiswa dengan NIM {nim} tidak ditemukan.")
+                else:
+                    print("\nMasukkan data nilai baru:")
+                    tugas_baru = input_nilai_valid("Nilai Tugas Baru (0-100): ")
+                    uts_baru = input_nilai_valid("Nilai UTS Baru (0-100)  : ")
+                    uas_baru = input_nilai_valid("Nilai UAS Baru (0-100)  : ")
+                    record_mhs.rubah_nilai_mahasiswa(nim, tugas_baru, uts_baru, uas_baru)
+
+        elif pilihan == 5:
+            print("\nProgram selesai. Terima kasih!")
+            break
+
+        else:
+            print(">> Pilihan menu tidak valid! Silakan pilih antara 1-5.")
+
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\subsection{Hasil Uji Coba Eksekusi Record Mahasiswa (Versi Python)}
+Berikut adalah demonstrasi hasil uji coba eksekusi program Python di terminal:
+
+\begin{tcolorbox}[colback=black!90!white,coltext=green!90!white,fontupper=\ttfamily\footnotesize,title=\textbf{Terminal Output Python: Input, Tampil Nilai, \& Merubah Nilai}]
+--- INPUT DATA MAHASISWA BARU ---\\
+Masukkan NIM     : 163251001\\
+Masukkan Nama    : Hellyos Ageng Haqiqie\\
+Masukkan Jurusan : Robotics \& AI Engineering\\
+Masukkan Nilai Tugas (0-100): 88\\
+Masukkan Nilai UTS (0-100)  : 92\\
+Masukkan Nilai UAS (0-100)  : 95\\
+>> Sukses: Data mahasiswa Hellyos Ageng Haqiqie (163251001) berhasil disimpan.\\
+\\
+===============================================================================================\\
+                              DAFTAR NILAI MAHASISWA                              \\
+===============================================================================================\\
+NIM           Nama                  Jurusan                        Tugas     UTS     UAS     Akhir  Grade\\
+-----------------------------------------------------------------------------------------------\\
+163251001     Hellyos Ageng Haqiqie Robotics \& AI Engineering      88.0    92.0    95.0     92.00      A\\
+===============================================================================================\\
+\\
+--- MERUBAH NILAI MAHASISWA ---\\
+Masukkan NIM mahasiswa yang akan diubah nilainya: 163251001\\
+\\
+Masukkan data nilai baru:\\
+Nilai Tugas Baru (0-100): 95\\
+Nilai UTS Baru (0-100)  : 95\\
+Nilai UAS Baru (0-100)  : 98\\
+>> Sukses: Nilai mahasiswa Hellyos Ageng Haqiqie (163251001) berhasil diperbarui!\\
+\\
+======================================================\\
+              RECORD DETAIL NILAI MAHASISWA           \\
+======================================================\\
+NIM               : 163251001\\
+Nama              : Hellyos Ageng Haqiqie\\
+Jurusan           : Robotics \& AI Engineering\\
+------------------------------------------------------\\
+Nilai Tugas (30\%) : 95.0\\
+Nilai UTS (30\%)   : 95.0\\
+Nilai UAS (40\%)   : 98.0\\
+------------------------------------------------------\\
+Nilai Akhir       : 96.20\\
+Grade             : A\\
+======================================================
+\end{tcolorbox}
+
+\newpage
+% --- KESIMPULAN ---
 \section{Kesimpulan}
-Dari implementasi kedua program dan penyusunan laporan ini, dapat disimpulkan bahwa:
+Dari implementasi kedua program dalam dua versi bahasa (C++ dan Python) serta penyusunan laporan ini, dapat disimpulkan bahwa:
 \begin{enumerate}
-    \item Pemrograman Berorientasi Objek (OOP) dengan C++ mempermudah perancangan aplikasi modular di mana data dan aksi dibungkus (\textit{encapsulated}) di dalam \textit{class}.
-    \item Pada Tugas 1 (Kasir Rumah Makan), pemisahan antara entitas menu (\texttt{Menu}), entitas item belanja (\texttt{ItemPesanan}), dan entitas pengendali transaksi (\texttt{KasirRumahMakan}) menciptakan alur data yang aman, terhindar dari manipulasi variabel global, serta memudahkan kalkulasi tagihan dan kembalian.
-    \item Pada Tugas 2 (Record Data Mahasiswa), \textit{method} \texttt{inputDataMahasiswa()}, \texttt{lihatNilaiSemua()}, dan \texttt{rubahNilaiMahasiswa()} mampu merealisasikan fungsionalitas CRUD secara efisien melalui pemanfaatan struktur data \texttt{std::vector}.
-    \item Perancangan \textit{flowchart} menggunakan standar visual yang terstruktur memberikan panduan yang jelas sebelum penulisan kode, meminimalisasi kesalahan logika percabangan, serta mendokumentasikan sistem secara komprehensif.
+    \item Pemrograman Berorientasi Objek (OOP) mempermudah perancangan aplikasi modular di mana data dan aksi dibungkus (\textit{encapsulated}) di dalam \textit{class}.
+    \item Implementasi pada C++ memperlihatkan kekuatan pengetikan statis (\textit{static typing}), enkapsulasi ketat dengan \textit{access specifier} (\texttt{private}/\texttt{public}), serta penggunaan kontainer STL (\texttt{std::vector}) yang efisien dan aman memori.
+    \item Implementasi pada Python memberikan kemudahan sintaksis yang ringkas (\textit{expressive}), pemanfaatan list dinamis dan format string modern, serta eksekusi yang fleksibel tanpa mengurangi struktur arsitektur OOP.
+    \item Pada Tugas 1 (Kasir Rumah Makan), pemisahan antara entitas menu (\texttt{Menu}), entitas item pesanan (\texttt{ItemPesanan}), dan entitas pengendali transaksi (\texttt{KasirRumahMakan}) menciptakan alur transaksi yang aman dan modular pada kedua bahasa.
+    \item Pada Tugas 2 (Record Data Mahasiswa), \textit{method} pengisian data baru, penampilan nilai, dan pembaruan (\textit{update}) nilai mahasiswa berhasil merealisasikan kebutuhan sistem informasi akademik dengan validasi data yang andal.
+    \item Perancangan \textit{flowchart} menggunakan standar visual terstruktur memfasilitasi translasi algoritma yang konsisten ke dalam bahasa pemrograman C++ maupun Python.
 \end{enumerate}
 
 \end{document}

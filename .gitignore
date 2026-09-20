@@ -3,6 +3,11 @@
 *.o
 *.obj
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
 # LaTeX auxiliary files
 *.aux
 *.log
